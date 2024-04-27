@@ -35,17 +35,17 @@ FName FActorPaintModeEditorModeToolkit::GetToolkitFName() const
 FText FActorPaintModeEditorModeToolkit::GetBaseToolkitName() const
 {
 	return LOCTEXT("DisplayName", "ActorPaintModeEditorMode Toolkit");
-}
+} 
 
 TSharedPtr<SWidget> FActorPaintModeEditorModeToolkit::GetInlineContent() const
 {
 	return SNew(SScrollBox)
-		+ SScrollBox::Slot()
-		  .VAlign(VAlign_Top)
-		  .Padding(5.f)
-		[
-			Painter.ToSharedRef()
-		]
+		//+ SScrollBox::Slot()
+		//  .VAlign(VAlign_Top)
+		//  .Padding(5.f)
+		//[
+		//	Painter.ToSharedRef()
+		//]
 		+ SScrollBox::Slot()
 		[
 			ModeDetailsView.ToSharedRef()

@@ -1,7 +1,24 @@
-# UE5 Paint Tool [WIP]
+# UE5 Actor Paint Tool [WIP]
 
-Tool to easily add lot of actors in the level and place them correctly where you want and how you want.
-I am using this project to learn tool creation and Slate on UE5. It is not stable.
+Unreal Engine 5 editor tool. Not Stable. Not finished.
 
+Easily add or select groups of actors to a level with a single movement.
+- Simple keyboard shortcuts
+- Random rotation and position
+- Random selection within a pool
+- Undo with ctrl-z
+- Adjust position and rotation with normal
+- Selection mode
+- and more
 
-![PaintPreview](./Preview/ue5painter.gif)
+# Preview Paint Mode
+
+![PaintPreview](./Preview/preview_paint.gif)
+
+![PaintPreview](./Preview/preview_ui_painter.png)
+
+# Preview Selection Mode
+
+![PaintPreview](./Preview/preview_selection.gif)
+
+![PaintPreview](./Preview/preview_ui_selectionner.png)
