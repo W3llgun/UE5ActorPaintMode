@@ -131,7 +131,6 @@ protected:
 	TSharedPtr<SWidgetPainter> PainterWidget;
 	bool CanSpawnDistanceCheck(const FHitResult& Result) const;
 	bool CanSpawnValidValues() const;
-	void TrySpawn(const FHitResult& Result);
 	bool IsProximityAllowed(const FVector& Position) const;
 	AActor* DoSpawn(const FVector& Position, const FRotator& Rotation);
 	void PostSpawnAdjustement(AActor* Actor, const FHitResult& Result) const;
@@ -141,7 +140,7 @@ protected:
 	void ChangeBrushDensity(float Offset) const;
 	void ChangeProximityRadius(float Offset) const;
 	virtual void CreateProperties() override;
-	virtual void TryClick(const FHitResult& ClickInfo) override;
+	virtual bool TryClick(const FHitResult& ClickInfo) override;
 public:
 	void SetPainter(const TSharedPtr<SWidgetPainter>& PainterParam) { PainterWidget = PainterParam; };
 

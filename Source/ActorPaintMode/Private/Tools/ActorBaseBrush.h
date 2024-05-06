@@ -51,7 +51,7 @@ public:
 };
 
 /**
- * 
+ * Base Editor Mode to override that provide by default brush functionality with all mouses actions
  */
 UCLASS()
 class ACTORPAINTMODE_API UActorBaseBrush : public UInteractiveTool, public IClickDragBehaviorTarget, public IHoverBehaviorTarget, public IMouseWheelBehaviorTarget
@@ -80,7 +80,7 @@ protected:
 
 	virtual void CreateProperties();
 	virtual bool CanBrushClick();
-	virtual void TryClick(const FHitResult& ClickInfo);
+	virtual bool TryClick(const FHitResult& ClickInfo);
 	virtual bool HitTest(const FRay& WorldRay, FHitResult& HitRes, bool& PaintAllowed) const;
 	virtual void MakeCollisionParam();
 	virtual UClickDragInputBehavior* MakeDragInput();
@@ -98,16 +98,22 @@ public:
 	FInputRayHit FindRayHit(const FRay& WorldRay, FVector& HitPos, bool& PaintAllowed) const;
 	virtual void OnPropertyModified(UObject* PropertySet, FProperty* Property) override;
 	virtual void OnUpdateModifierState(int ModifierID, bool bIsOn) override;
-	virtual FInputRayHit CanBeginClickDragSequence(const FInputDeviceRay& PressPos) override;
+
+	/* Mouse Click override */
 	virtual void OnClickPress(const FInputDeviceRay& PressPos) override;
 	virtual void OnClickRelease(const FInputDeviceRay& PressPos) override;
+
+	/* Mouse Drag override */
+	virtual FInputRayHit CanBeginClickDragSequence(const FInputDeviceRay& PressPos) override;
 	virtual void OnClickDrag(const FInputDeviceRay& DragPos) override;
 	virtual void OnTerminateDragSequence() override;
 
+	/* Mouse wheel override */
 	virtual FInputRayHit ShouldRespondToMouseWheel(const FInputDeviceRay& CurrentPos) override;
 	virtual void OnMouseWheelScrollUp(const FInputDeviceRay& CurrentPos) override;
 	virtual void OnMouseWheelScrollDown(const FInputDeviceRay& CurrentPos) override;
 
+	/* Mouse hover override */
 	virtual FInputRayHit BeginHoverSequenceHitTest(const FInputDeviceRay& PressPos) override;
 	virtual void OnBeginHover(const FInputDeviceRay& DevicePos) override;
 	virtual bool OnUpdateHover(const FInputDeviceRay& DevicePos) override;

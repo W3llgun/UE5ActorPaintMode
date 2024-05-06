@@ -1,8 +1,6 @@
 ﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "ActorPaintModeEditorModeCommands.h"
-#include "ActorPaintModeEditorMode.h"
-#include "EditorStyleSet.h"
 
 #define LOCTEXT_NAMESPACE "ActorPaintModeEditorModeCommands"
 

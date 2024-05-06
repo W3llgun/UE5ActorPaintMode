@@ -41,8 +41,9 @@ bool UActorBaseBrush::CanBrushClick()
 	return true;
 }
 
-void UActorBaseBrush::TryClick(const FHitResult& ClickInfo)
+bool UActorBaseBrush::TryClick(const FHitResult& ClickInfo)
 {
+	return false;
 }
 
 void UActorBaseBrush::Setup()

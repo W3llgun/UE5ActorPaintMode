@@ -10,6 +10,10 @@ enum FilePathPreset
 	USER_DIR
 };
 
+/*	Test To create file in Unreal engine to save and load some Editor Data.
+ *	A good folder is ./Saved/PluginName/ (It is commonly added to UE gitignore)
+ *  No used at the moment.
+ */
 class FileUtility
 {
 public:

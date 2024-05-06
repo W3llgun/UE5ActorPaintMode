@@ -1,9 +1,6 @@
 ﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "ActorPaintModeEditorModeToolkit.h"
-#include "ActorPaintModeEditorMode.h"
-#include "Engine/Selection.h"
-
 #include "Modules/ModuleManager.h"
 #include "PropertyEditorModule.h"
 #include "IDetailsView.h"
@@ -35,10 +32,11 @@ FName FActorPaintModeEditorModeToolkit::GetToolkitFName() const
 FText FActorPaintModeEditorModeToolkit::GetBaseToolkitName() const
 {
 	return LOCTEXT("DisplayName", "ActorPaintModeEditorMode Toolkit");
-} 
+}
 
 TSharedPtr<SWidget> FActorPaintModeEditorModeToolkit::GetInlineContent() const
 {
+	// Here I can override default EditorMode panel that open when selecting an EditorMode.
 	return SNew(SScrollBox)
 		//+ SScrollBox::Slot()
 		//  .VAlign(VAlign_Top)

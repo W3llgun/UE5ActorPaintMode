@@ -12,7 +12,6 @@
 //////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////// 
 #include "WidgetPainter.h"
-#include "Tools/ActorBaseBrush.h"
 #include "Tools/ActorPaintModeBrushRaw.h"
 #include "Tools/ActorSelectModeBrush.h"
 #include "Tools/ActorPaintModeInteractiveTool.h"
@@ -66,6 +65,7 @@ void UActorPaintModeEditorMode::Enter()
 
 	const auto RawPainterBuilder = NewObject<UActorPaintModeBrushRawToolBuilder>(this);
 	RawPainterBuilder->Painter = Painter;
+
 	RegisterTool(SampleToolCommands.BrushToolRaw, BrushRawToolName, RawPainterBuilder);
 	//RegisterTool(SampleToolCommands.BrushTool, BrushToolName, NewObject<UActorBaseBrushBuilder>(this));
 	RegisterTool(SampleToolCommands.SimpleTool, SimpleToolName, NewObject<UActorPaintModeSimpleToolBuilder>(this));

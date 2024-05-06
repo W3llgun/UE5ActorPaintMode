@@ -65,9 +65,52 @@ void UActorPaintModeBrushRaw::CreateProperties()
 	AddToolPropertySource(PaintBrushProperties);
 }
 
-void UActorPaintModeBrushRaw::TryClick(const FHitResult& ClickInfo)
+bool UActorPaintModeBrushRaw::TryClick(const FHitResult& Result)
 {
-	TrySpawn(ClickInfo);
+	if (CanSpawnValidValues() && CanSpawnDistanceCheck(Result))
+	{
+		LastSpawnPositionCenter = Result.Location;
+
+		const FVector Normal = Result.ImpactNormal.GetSafeNormal();
+		const FRotator SpawnRotation = FRotationMatrix::MakeFromZ(Normal).Rotator();
+
+		TArray<FVector> Offsets;
+		if (PaintBrushProperties->SpawnMode == ESpawnMode::Random)
+		{
+			Offsets = GetRandomPositionOffsets(Normal);
+		}
+		else
+		{
+			GEditor->BeginTransaction(FText::FromString("Spawn"));
+			for (int i = 0; i < PaintBrushProperties->BrushDensity; ++i)
+			{
+				// Proximity Spawn ignored when all spawn on center
+				if (AActor* Actor = DoSpawn(Result.Location, SpawnRotation))
+				{
+					PostSpawnAdjustement(Actor, Result);
+				}
+			}
+			GEditor->EndTransaction();
+			return true;
+		}
+
+
+		GEditor->BeginTransaction(FText::FromString("Spawn"));
+		for (auto Offset : Offsets)
+		{
+			const FVector Pos = Result.Location + Offset;
+			if (IsProximityAllowed(Pos))
+			{
+				if (AActor* Actor = DoSpawn(Pos, SpawnRotation))
+				{
+					PostSpawnAdjustement(Actor, Result);
+				}
+			}
+		}
+		GEditor->EndTransaction();
+		return true;
+	}
+	return false;
 }
 
 void UActorPaintModeBrushRaw::OnSlateButtonClick(const FString& String) const
@@ -159,52 +202,6 @@ bool UActorPaintModeBrushRaw::CanSpawnDistanceCheck(const FHitResult& Result) co
 bool UActorPaintModeBrushRaw::CanSpawnValidValues() const
 {
 	return bPaintAllowed && PaintBrushProperties->ActorSpawnList.Num() > 0 && PaintBrushProperties->BrushDensity > 0 && TargetWorld.IsValid();
-}
-
-void UActorPaintModeBrushRaw::TrySpawn(const FHitResult& Result)
-{
-	if (CanSpawnValidValues() && CanSpawnDistanceCheck(Result))
-	{
-		LastSpawnPositionCenter = Result.Location;
-
-		const FVector Normal = Result.ImpactNormal.GetSafeNormal();
-		const FRotator SpawnRotation = FRotationMatrix::MakeFromZ(Normal).Rotator();
-
-		TArray<FVector> Offsets;
-		if (PaintBrushProperties->SpawnMode == ESpawnMode::Random)
-		{
-			Offsets = GetRandomPositionOffsets(Normal);
-		}
-		else
-		{
-			GEditor->BeginTransaction(FText::FromString("Spawn"));
-			for (int i = 0; i < PaintBrushProperties->BrushDensity; ++i)
-			{
-				// Proximity Spawn ignored when all spawn on center
-				if (AActor* Actor = DoSpawn(Result.Location, SpawnRotation))
-				{
-					PostSpawnAdjustement(Actor, Result);
-				}
-			}
-			GEditor->EndTransaction();
-			return;
-		}
-
-
-		GEditor->BeginTransaction(FText::FromString("Spawn"));
-		for (auto Offset : Offsets)
-		{
-			const FVector Pos = Result.Location + Offset;
-			if (IsProximityAllowed(Pos))
-			{
-				if (AActor* Actor = DoSpawn(Pos, SpawnRotation))
-				{
-					PostSpawnAdjustement(Actor, Result);
-				}
-			}
-		}
-		GEditor->EndTransaction();
-	}
 }
 
 bool UActorPaintModeBrushRaw::IsProximityAllowed(const FVector& Position) const

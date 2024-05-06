@@ -9,14 +9,14 @@ BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
 FText SWidgetPainter::GetButtonText() const
 {
-	return FText::FromString(text);
+	return FText::FromString(DisplayText);
 }
 
 FReply SWidgetPainter::OnClickedButton()
 {
 	UE_LOG(LogTemp, Warning, TEXT("SWidgetPainter::OnClickedButton"));
-	text = "XDD";
-	bool V = OnButtonClick.ExecuteIfBound(text);
+	DisplayText = "Click";
+	//bool V = OnButtonClick.ExecuteIfBound(DisplayText);
 	return FReply::Handled();
 }
 

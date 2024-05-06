@@ -51,6 +51,23 @@ void UActorSelectModeBrush::Setup()
 	Super::Setup();
 }
 
+
+UClickDragInputBehavior* UActorSelectModeBrush::MakeDragInput()
+{
+	const auto Drag = Super::MakeDragInput();
+
+	// Add modifier to the drag behavior
+	Drag->Modifiers.RegisterModifier(Mouse_ShiftModifierID, FInputDeviceState::IsShiftKeyDown);
+	return Drag;
+}
+
+void UActorSelectModeBrush::CreateProperties()
+{
+	SelectProperties = NewObject<UActorPaintModeSimpleToolProperties>(this);
+	BaseBrushProperties = SelectProperties;
+	AddToolPropertySource(SelectProperties);
+}
+
 bool UActorSelectModeBrush::DistanceCheck(const FVector& Point) const
 {
 	if (LastPoint.IsZero()) return true;
@@ -59,13 +76,15 @@ bool UActorSelectModeBrush::DistanceCheck(const FVector& Point) const
 
 bool UActorSelectModeBrush::GetOverlapActors(const FVector& Position, TArray<AActor*>& ActorList) const
 {
-	TArray<FOverlapResult> Overlaps;
-	auto VCol = FCollisionObjectQueryParams();
+	auto LocalCollisionParams = FCollisionObjectQueryParams();
 	for (auto col : SelectProperties->Collisions)
 	{
-		VCol.AddObjectTypesToQuery(col);
+		LocalCollisionParams.AddObjectTypesToQuery(col);
 	}
-	if (TargetWorld->OverlapMultiByObjectType(Overlaps, Position, FQuat::Identity, VCol, FCollisionShape::MakeSphere(SelectProperties->BrushRadius)))
+
+	// World overlap check to find selectable actors.
+	TArray<FOverlapResult> Overlaps;
+	if (TargetWorld->OverlapMultiByObjectType(Overlaps, Position, FQuat::Identity, LocalCollisionParams, FCollisionShape::MakeSphere(SelectProperties->BrushRadius)))
 	{
 		for (auto Overlap : Overlaps)
 		{
@@ -81,40 +100,14 @@ bool UActorSelectModeBrush::CanBeSelected(AActor* Actor) const
 	return true; // TODO
 }
 
-void UActorSelectModeBrush::SelectActors(TArray<AActor*> Actors)
+bool UActorSelectModeBrush::TryClick(const FHitResult& ClickInfo)
 {
-	GEditor->BeginTransaction(FText::FromString("Select Actors"));
-	for (const auto OverlapActor : Actors)
-	{
-		Selection.AddUnique(OverlapActor);
-	}
+	if (!DistanceCheck(ClickInfo.Location)) return false; // new click not far enough from last
 
-	EditorActorSubsystem->SetSelectedLevelActors(Selection);
-	GEditor->EndTransaction();
-}
 
-void UActorSelectModeBrush::UnselectActors(TArray<AActor*> Actors)
-{
-	GEditor->BeginTransaction(FText::FromString("Unselect Actors"));
-	for (const auto OverlapActor : Actors)
-	{
-		Selection.Remove(OverlapActor);
-	}
-
-	EditorActorSubsystem->SetSelectedLevelActors(Selection);
-	GEditor->EndTransaction();
-}
-
-void UActorSelectModeBrush::CreateProperties()
-{
-	SelectProperties = NewObject<UActorPaintModeSimpleToolProperties>(this);
-	BaseBrushProperties = SelectProperties;
-	AddToolPropertySource(SelectProperties);
-}
-
-void UActorSelectModeBrush::TryClick(const FHitResult& ClickInfo)
-{
-	if (!DistanceCheck(ClickInfo.Location)) return;
+	/*  Get current UE selected objects (may have changed because user used shift-click on some actors or our tool was just opened)
+	 *  Need optimisation ?
+	 */
 	Selection = EditorActorSubsystem->GetSelectedLevelActors();
 
 	TArray<AActor*> OverlapActors;
@@ -129,11 +122,47 @@ void UActorSelectModeBrush::TryClick(const FHitResult& ClickInfo)
 			SelectActors(OverlapActors);
 		}
 	}
+
+	// eat click even if nothing was found
+	return true;
+}
+
+
+void UActorSelectModeBrush::SelectActors(TArray<AActor*> Actors)
+{
+	for (const auto OverlapActor : Actors)
+	{
+		Selection.AddUnique(OverlapActor);
+	}
+
+	// Transaction to add majors actions to UE history (that enable ctrl-z modifications)
+	GEditor->BeginTransaction(FText::FromString("Select Actors"));
+	EditorActorSubsystem->SetSelectedLevelActors(Selection);
+	GEditor->EndTransaction();
+}
+
+void UActorSelectModeBrush::UnselectActors(TArray<AActor*> Actors)
+{
+	for (const auto OverlapActor : Actors)
+	{
+		Selection.Remove(OverlapActor);
+	}
+
+	// Transaction to add majors actions to UE history (that enable ctrl-z modifications)
+	GEditor->BeginTransaction(FText::FromString("Unselect Actors"));
+	EditorActorSubsystem->SetSelectedLevelActors(Selection);
+	GEditor->EndTransaction();
 }
 
 void UActorSelectModeBrush::OnClickRelease(const FInputDeviceRay& ReleasePos)
 {
 	Super::OnClickRelease(ReleasePos);
+
+	/*
+	 *  On release drag, reset LastPoint.
+	 *	But will prevent click on close to world pos (0,0,0).
+	 *	To improve.
+	 */
 	LastPoint = FVector();
 }
 
@@ -144,13 +173,6 @@ void UActorSelectModeBrush::OnUpdateModifierState(int ModifierID, bool bIsOn)
 	{
 		bIsUnselectMode = bIsOn;
 	}
-}
-
-UClickDragInputBehavior* UActorSelectModeBrush::MakeDragInput()
-{
-	const auto Drag = Super::MakeDragInput();
-	Drag->Modifiers.RegisterModifier(Mouse_ShiftModifierID, FInputDeviceState::IsShiftKeyDown);
-	return Drag;
 }
 
 

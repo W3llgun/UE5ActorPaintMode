@@ -6,7 +6,7 @@
 #include "Widgets/SCompoundWidget.h"
 
 /**
- * 
+ * Test Slate widget I used to override default Details view of the EditorMode
  */
 class ACTORPAINTMODE_API SWidgetPainter : public SCompoundWidget
 {
@@ -20,22 +20,27 @@ public:
 
 	DECLARE_DELEGATE_OneParam(FOnButtonClickCallback, const FString&);
 
-	FOnButtonClickCallback OnButtonClick;
-	/** Constructs this widget with InArgs */
-	FString text = "AA";
-	FText GetButtonText() const;
-	FReply OnClickedButton();
 	void Construct(const FArguments& InArgs);
+	FText GetButtonText() const;
+	FOnButtonClickCallback OnButtonClick;
+
+private:
+	/** Constructs this widget with InArgs */
+	FString DisplayText = "Button";
+
+
+	FReply OnClickedButton();
+
 
 	virtual void OnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override
 	{
-		text = "IN";
+		DisplayText = "Hover";
 		SCompoundWidget::OnMouseEnter(MyGeometry, MouseEvent);
 	}
 
 	virtual void OnMouseLeave(const FPointerEvent& MouseEvent) override
 	{
-		text = "OUT";
+		DisplayText = "Exit";
 		SCompoundWidget::OnMouseLeave(MouseEvent);
 	}
 };

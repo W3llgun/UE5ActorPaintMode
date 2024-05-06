@@ -1,12 +1,9 @@
 ﻿#include "FileUtility.h"
 #include "Logging/StructuredLog.h"
 
-//UE_LOGFMT(LogTemp, Warning, "FilePath {value}", str);
-
 bool FileUtility::CreateFile(const FilePathPreset PathPreset, const FString& Filename, const FString& Content)
 {
 	const FString CompletePath = GetPath(PathPreset) + Filename;
-
 	return FFileHelper::SaveStringToFile(Content, *CompletePath, FFileHelper::EEncodingOptions::ForceUTF8);
 }
 
